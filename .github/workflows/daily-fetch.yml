@@ -39,7 +39,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           if [ -n "$(git status --porcelain)" ]; then
-            git add "最新的论文信息.json" seen_papers.json
+            git add daily_cs.json seen_papers.json
             git commit -m "chore: 采集 arXiv cs.AI 论文 $(date -u +%Y-%m-%d)"
             git push
           else

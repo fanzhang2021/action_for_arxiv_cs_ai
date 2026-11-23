@@ -36,7 +36,7 @@ RETRY_BACKOFF = 5.0       # 重试退避基数（秒），指数退避
 
 DEFAULT_DATA_DIR = os.path.dirname(os.path.abspath(__file__))
 
-PAPERS_FILE = "最新的论文信息.json"
+PAPERS_FILE = "daily_cs.json"
 SEEN_FILE = "seen_papers.json"
 
 
@@ -259,7 +259,6 @@ def main():
 
     # 读取历史已采集 ID
     seen_ids = set(load_json(seen_path, []))
-    existing_papers = load_json(papers_path, [])
 
     # 增量：只保留未采集过的新论文
     to_add = [p for p in new_papers if p["arxiv_id"] not in seen_ids]
@@ -267,23 +266,22 @@ def main():
 
     if not to_add:
         print("无新论文，无需更新。")
+        # 即使无新论文，也清空当日文件，确保 daily_cs.json 只反映"当日新抓取"
+        save_json(papers_path, [])
+        print(f"{PAPERS_FILE} 已清空（本日无新论文）")
         return
 
-    # 追加新论文，并按发布时间倒序重排
-    merged = {p["arxiv_id"]: p for p in existing_papers}
-    for p in to_add:
-        merged[p["arxiv_id"]] = p
-    all_sorted = sorted(merged.values(), key=lambda x: x["first_published"], reverse=True)
+    # 当日新论文按发布时间倒序，覆盖写入（不累积历史，历史靠 seen_papers.json 去重）
+    to_add.sort(key=lambda x: x["first_published"], reverse=True)
 
     # 先保存论文信息，成功后再更新 seen（保证一致性：只有成功保存的才标记为已采集）
-    save_json(papers_path, all_sorted)
+    save_json(papers_path, to_add)
     new_ids = [p["arxiv_id"] for p in to_add]
     seen_ids.update(new_ids)
     save_json(seen_path, sorted(seen_ids))
 
-    print(f"成功保存 {len(to_add)} 条新论文到 {PAPERS_FILE}")
+    print(f"成功保存 {len(to_add)} 条当日新论文到 {PAPERS_FILE}")
     print(f"seen_papers.json 已更新（共 {len(seen_ids)} 条 ID）")
-    print(f"{PAPERS_FILE} 当前共 {len(all_sorted)} 条论文")
 
 
 if __name__ == "__main__":
