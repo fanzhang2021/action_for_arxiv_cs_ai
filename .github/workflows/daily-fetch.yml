@@ -1,0 +1,47 @@
+name: Daily arXiv cs.AI Collector
+
+on:
+  # 每天北京时间 7:00 自动运行（UTC 时间 23:00，即前一天）
+  schedule:
+    - cron: "0 23 * * *"
+  # 支持手动触发，方便补采
+  workflow_dispatch:
+
+# 允许工作流通过 GitHub Token 推送更新
+permissions:
+  contents: write
+
+concurrency:
+  group: arxiv-collector
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # 拉取完整历史，保证提交基于最新代码
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run collector
+        run: python fetch_papers.py --days 3
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if [ -n "$(git status --porcelain)" ]; then
+            git add "最新的论文信息.json" seen_papers.json
+            git commit -m "chore: 采集 arXiv cs.AI 论文 $(date -u +%Y-%m-%d)"
+            git push
+          else
+            echo "No new papers, nothing to commit."
+          fi
