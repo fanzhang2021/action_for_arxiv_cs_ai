@@ -29,8 +29,8 @@ ARXIV_API_URL = "http://export.arxiv.org/api/query"
 CATEGORY = "cs.AI"
 QUERY_DAYS = 3            # 每次查询最近 3 天，避免任务延迟/临时失败导致漏采
 RESULTS_PER_PAGE = 100    # arXiv API 每页最大返回数
-MAX_RESULTS_PER_QUERY = 200  # 单次查询结果安全上限（阈值）
-# cs.AI 每天新增约 10~50 篇，3 天窗口累计通常 < 150 篇，设 200 留足余量。
+MAX_RESULTS_PER_QUERY = 300  # 单次查询结果安全上限（阈值）
+# cs.AI 每天新增约 10~50 篇，3 天窗口累计通常 < 150 篇，设 300 留足余量。
 # 超过该阈值则按天拆分查询，防止极端情况漏采（arXiv 官方单次上限为 2000）。
 REQUEST_DELAY = 3.0       # 两次请求间隔（秒），遵守 arXiv 限速（建议 >= 3s）
 RETRY_TIMES = 5           # 请求失败重试次数
