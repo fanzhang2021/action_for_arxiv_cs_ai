@@ -266,9 +266,9 @@ def main():
 
     if not to_add:
         print("无新论文，无需更新。")
-        # 即使无新论文，也清空当日文件，确保 daily_cs.json 只反映"当日新抓取"
-        save_json(papers_path, [])
-        print(f"{PAPERS_FILE} 已清空（本日无新论文）")
+        # 无新论文时保持 daily_cs.json 原样，不清空、不覆盖，
+        # 确保手动多跑一次不会破坏上次成功抓取的结果
+        print(f"{PAPERS_FILE} 保持不变（本日无新论文）")
         return
 
     # 当日新论文按发布时间倒序，覆盖写入（不累积历史，历史靠 seen_papers.json 去重）
