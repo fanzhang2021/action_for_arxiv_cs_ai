@@ -1,9 +1,10 @@
 name: Daily arXiv cs.AI Collector
 
 on:
-  # 每天北京时间 7:00 自动运行（UTC 时间 23:00，即前一天）
+  # 每周一至周五，北京时间 14:00（UTC 06:00）自动运行
+  # arXiv 论文公告日为周日~周四（美东时间），对应北京时间周一~周五
   schedule:
-    - cron: "0 23 * * *"
+    - cron: "0 6 * * 1-5"
   # 支持手动触发，方便补采
   workflow_dispatch:
 
